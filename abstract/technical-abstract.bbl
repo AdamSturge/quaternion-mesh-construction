@@ -1,0 +1,92 @@
+%%% -*-BibTeX-*-
+%%% Do NOT edit. File created by BibTeX with style
+%%% ACM-Reference-Format-Journals [18-Jan-2012].
+
+\begin{thebibliography}{00}
+
+%%% ====================================================================
+%%% NOTE TO THE USER: you can override these defaults by providing
+%%% customized versions of any of these macros before the \bibliography
+%%% command.  Each of them MUST provide its own final punctuation,
+%%% except for \shownote{}, \showDOI{}, and \showURL{}.  The latter two
+%%% do not use final punctuation, in order to avoid confusing it with
+%%% the Web address.
+%%%
+%%% To suppress output of a particular field, define its macro to expand
+%%% to an empty string, or better, \unskip, like this:
+%%%
+%%% \newcommand{\showDOI}[1]{\unskip}   % LaTeX syntax
+%%%
+%%% \def \showDOI #1{\unskip}           % plain TeX syntax
+%%%
+%%% ====================================================================
+
+\ifx \showCODEN    \undefined \def \showCODEN     #1{\unskip}     \fi
+\ifx \showDOI      \undefined \def \showDOI       #1{{\tt DOI:}\penalty0{#1}\ }
+  \fi
+\ifx \showISBNx    \undefined \def \showISBNx     #1{\unskip}     \fi
+\ifx \showISBNxiii \undefined \def \showISBNxiii  #1{\unskip}     \fi
+\ifx \showISSN     \undefined \def \showISSN      #1{\unskip}     \fi
+\ifx \showLCCN     \undefined \def \showLCCN      #1{\unskip}     \fi
+\ifx \shownote     \undefined \def \shownote      #1{#1}          \fi
+\ifx \showarticletitle \undefined \def \showarticletitle #1{#1}   \fi
+\ifx \showURL      \undefined \def \showURL       #1{#1}          \fi
+% The following commands are used for tagged output and should be
+% invisible to TeX
+\providecommand\bibfield[2]{#2}
+\providecommand\bibinfo[2]{#2}
+\providecommand\natexlab[1]{#1}
+\providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[\protect\citeauthoryear{Amenta, Choi, and Kolluri}{Amenta
+  et~al\mbox{.}}{2001}]%
+        {Amenta:2001:PC:376957.376986}
+\bibfield{author}{\bibinfo{person}{Nina Amenta}, \bibinfo{person}{Sunghee
+  Choi}, {and} \bibinfo{person}{Ravi~Krishna Kolluri}.}
+  \bibinfo{year}{2001}\natexlab{}.
+\newblock \showarticletitle{The Power Crust}. In \bibinfo{booktitle}{{\em
+  Proceedings of the Sixth ACM Symposium on Solid Modeling and Applications}}
+  {\em (\bibinfo{series}{SMA '01})}. \bibinfo{publisher}{ACM},
+  \bibinfo{address}{New York, NY, USA}, \bibinfo{pages}{249--266}.
+\newblock
+\showISBNx{1-58113-366-9}
+\showDOI{%
+\url{https://doi.org/10.1145/376957.376986}}
+
+
+\bibitem[\protect\citeauthoryear{Bouaziz and Pauly}{Bouaziz and Pauly}{2015}]%
+        {Bouaziz:2015}
+\bibfield{author}{\bibinfo{person}{Sofien Bouaziz} {and} \bibinfo{person}{Mark
+  Pauly}.} \bibinfo{year}{2015}\natexlab{}.
+\newblock \showarticletitle{Realtime Face Tracking and Animation}.
+\newblock \bibinfo{journal}{{\em ÉCOLE POLYTECHNIQUE FÉDÉRALE DE LAUSANNE
+  PhD thesis\/}} (\bibinfo{year}{2015}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Crane, Pinkall, and Schr\"{o}der}{Crane
+  et~al\mbox{.}}{2011}]%
+        {Crane:2011:STD}
+\bibfield{author}{\bibinfo{person}{Keenan Crane}, \bibinfo{person}{Ulrich
+  Pinkall}, {and} \bibinfo{person}{Peter Schr\"{o}der}.}
+  \bibinfo{year}{2011}\natexlab{}.
+\newblock \showarticletitle{Spin Transformations of Discrete Surfaces}.
+\newblock \bibinfo{journal}{{\em ACM Trans. Graph.\/}}  \bibinfo{volume}{30}
+  (\bibinfo{year}{2011}).
+\newblock
+Issue 4.
+
+
+\bibitem[\protect\citeauthoryear{Kazhdan, Bolitho, and Hoppe}{Kazhdan
+  et~al\mbox{.}}{2006}]%
+        {Hoppe:2006}
+\bibfield{author}{\bibinfo{person}{Michael Kazhdan}, \bibinfo{person}{Matthew
+  Bolitho}, {and} \bibinfo{person}{Hugues Hoppe}.}
+  \bibinfo{year}{2006}\natexlab{}.
+\newblock \showarticletitle{Possion surface reconstruction}.
+\newblock \bibinfo{journal}{{\em Eurographics Symposium on Geometry
+  Processing\/}} (\bibinfo{year}{2006}).
+\newblock
+
+
+\end{thebibliography}

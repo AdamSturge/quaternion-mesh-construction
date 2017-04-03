@@ -114,7 +114,6 @@ struct Energy {
 
 		Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> f_tilde = L_sol_.solve(L_.transpose()*omega);
 		f_tilde_ = f_tilde;
-
 		Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> x_tilde = Baryl_coords_*f_tilde;
 
 		Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> diff = P_ - x_tilde;

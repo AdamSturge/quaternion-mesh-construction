@@ -21,6 +21,11 @@
 #include <solve_for_lambda.h>
 #include <quaternion_matrix.h>
 #include <convert_to_stan_var.h>
+#include <normalize_solution.h>
+#include <thread>
+#include <mutex>
+#include <solve_for_lambda.h>
+#include <new_vertex_positions.h>
 
 int main(int argc, char *argv[])
 {
@@ -38,8 +43,8 @@ int main(int argc, char *argv[])
     std::string line;
     std::fstream in;
     //in.open(argc>1?argv[1]:"../shared/data/sphere-noisy.pwn");
-		in.open(argc>1 ? argv[1] : "../shared/data/hand.pwn");
-		//in.open(argc>1 ? argv[1] : "C:\\UoT-Masters\\Geometry-Processing\\geometry-processing-project\\shared\\data\\head.pwn");
+		//in.open(argc>1 ? argv[1] : "../shared/data/hand.pwn");
+		in.open(argc>1 ? argv[1] : "C:\\UoT-Masters\\Geometry-Processing\\geometry-processing-project\\shared\\data\\head.pwn");
 		
     while(in)
     {
@@ -60,8 +65,10 @@ int main(int argc, char *argv[])
   Eigen::MatrixXd V;
   Eigen::MatrixXi F;
   igl::read_triangle_mesh("../shared/data/sphere.obj", V, F);
-	//igl::read_triangle_mesh("../shared/data/max-registration-complete.obj", V, F);
+	//igl::read_triangle_mesh("../shared/data/24rqomjz3oqo-face/face.obj", V, F);
 	//igl::read_triangle_mesh("C:\\Users\\adams\\Desktop\\deformed_mesh_head_overnight.obj", V, F);
+
+	normalize_solution(V, V);
 
 	Eigen::MatrixXd U = V; // matrix used to store new vertex locations
 
@@ -78,7 +85,7 @@ int main(int argc, char *argv[])
 	Eigen::MatrixXd points = target_points;
 	viewer.data.set_points(points, white);				
 
-	int num_samples = target_points.rows();
+	int num_samples = n_TP; // NOTE: THIS HAS TO BE NUMBER OF TARGET POINTS IF YOU ARE ALERTERNATING SAMPLING TECHNIQUES
 
 	Eigen::MatrixXd C(n_TP + 2 * num_samples, 3);
 	C = Eigen::MatrixXd(n_TP + 2 * num_samples, 3);
@@ -101,22 +108,22 @@ int main(int argc, char *argv[])
 #pragma endregion
 
   #pragma region sampling_functions
-	Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> P_vec(4 * num_samples, 1);
+  Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> P_vec(4 * num_samples, 1);
 	Eigen::SparseMatrix<double> X_b_big = Eigen::SparseMatrix<double>(4 * num_samples, 4 * V.rows());
-	Eigen::Matrix<stan::math::var, Eigen::Dynamic, Eigen::Dynamic> N_var(n_TP, 3);
+	Eigen::Matrix<stan::math::var, Eigen::Dynamic, Eigen::Dynamic> N_var(num_samples, 3);
+	//std::mutex mutex;
 	const auto compute_grad_decent_matricies = [&](Eigen::MatrixXd P, Eigen::MatrixXd X_w, Eigen::MatrixXd N, std::vector<int> FL)
 	{
 		// Vectorize P
-		P_vec = Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1>(4 * num_samples, 1);
+		Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> P_vec_tmp(4 * num_samples, 1);
 		for (int i = 0; i < num_samples; ++i)
 		{
-			P_vec(4 * i) = stan::math::var(0.0);
+			P_vec_tmp(4 * i) = stan::math::var(0.0);
 			for (int j = 1; j < 4; ++j)
 			{
-				P_vec(4 * i + j) = stan::math::var(P(i, j - 1));
+				P_vec_tmp(4 * i + j) = stan::math::var(P(i, j - 1));
 			}
 		}
-
 		// Create barycentric coordinate matrix X_b from X_w
 		Eigen::MatrixXd A = Eigen::MatrixXd(num_samples, 3);
 		Eigen::MatrixXd B = Eigen::MatrixXd(num_samples, 3);
@@ -131,7 +138,7 @@ int main(int argc, char *argv[])
 		Eigen::MatrixXd X_b = Eigen::MatrixXd(num_samples, 3);
 		igl::barycentric_coordinates(X_w, A, B, D, X_b);
 
-		X_b_big = Eigen::SparseMatrix<double>(4 * num_samples, 4 * U.rows());
+		Eigen::SparseMatrix<double> X_b_big_tmp(4 * num_samples, 4 * U.rows());
 		std::vector<Eigen::Triplet<double>> triplets;
 		triplets.reserve(4 * 3 * U.rows());
 		for (int i = 0; i < num_samples; ++i)
@@ -145,14 +152,23 @@ int main(int argc, char *argv[])
 				triplets.push_back(Eigen::Triplet<double>(4 * i + j, 4 * I[2] + j, X_b(i, 2)));
 			}
 		}
-		X_b_big.setFromTriplets(triplets.begin(), triplets.end());
+		X_b_big_tmp.setFromTriplets(triplets.begin(), triplets.end());
 
-		convert_to_stan_var(N, N_var);
+		Eigen::Matrix<stan::math::var, Eigen::Dynamic, Eigen::Dynamic> N_var_tmp(num_samples, 3);
+		convert_to_stan_var(N, N_var_tmp);
+
+		//mutex.lock();
+		P_vec = P_vec_tmp;
+		X_b_big = X_b_big_tmp;
+		N_var = N_var_tmp;
+		//mutex.unlock();
 	
 	};
-
+	
+  //bool sampling_running = false;
 	const auto mesh_to_cloud_sample = [&]()
 	{
+		//sampling_running = true;
 		std::cout << "sampling: mesh to cloud" << std::endl;
 		Eigen::MatrixXd X_w = Eigen::MatrixXd(num_samples, 3);
 		Eigen::MatrixXd P = Eigen::MatrixXd(num_samples, 3);
@@ -162,11 +178,13 @@ int main(int argc, char *argv[])
 		sample_points(num_samples, U, F, target_points, target_normals, X_w, P, N, FL);
 		compute_grad_decent_matricies(P, X_w, N, FL);
 		
+		//sampling_running = false;
 		std::cout << "done sampling: mesh to cloud" << std::endl;
 	};
 
 	const auto cloud_to_mesh_sample = [&]()
 	{
+		//sampling_running = true;
 		std::cout << "sampling: cloud to mesh" << std::endl;
 		Eigen::MatrixXd X_w = Eigen::MatrixXd(num_samples, 3);
 		Eigen::MatrixXd P = Eigen::MatrixXd(num_samples, 3);
@@ -178,19 +196,19 @@ int main(int argc, char *argv[])
 		closest_points_cloud_to_mesh(U, F, P, X_w, FL);
 		
 		compute_grad_decent_matricies(P, X_w, N, FL);
-		
+		//sampling_running = false;
 		std::cout << "done sampling: cloud to mesh" << std::endl;
 	};
   #pragma endregion
 
-	mesh_to_cloud_sample();
+	cloud_to_mesh_sample();
 
 	#pragma region variables_for_grad_decent
 	Eigen::VectorXd lam(4 * V.rows());
 	double step_size = -1.0;
 	double step_decay = 0.9;
 	bool points_visible = true;
-	bool exit = false;
+	bool exit = true;
 	Eigen::VectorXd u(4 * V.rows()); //vectorized new vertex positions (as quaternions)
 	int sampling_trigger = 1;
 	bool cloud_to_mesh = false;
@@ -217,6 +235,7 @@ int main(int argc, char *argv[])
 				sampling_trigger++;
 				if((sampling_trigger % 10) == 0)
 				{
+					exit = true;
 					fx_min_new = *std::min(fx_vals.begin(),fx_vals.end());
 					if(fx_min_new - fx_min_old > 0 || abs(fx_min_new - fx_min_old) < 0.0001)
 					{
@@ -231,10 +250,16 @@ int main(int argc, char *argv[])
 					if(cloud_to_mesh)
 					{
 						cloud_to_mesh_sample();
+						/*std::cout << "starting thread" << std::endl;
+						std::thread t(cloud_to_mesh_sample);
+						t.detach();*/
 					}
 					else 
 					{
 						mesh_to_cloud_sample();
+						/*std::cout << "starting thread" << std::endl;
+						std::thread t(mesh_to_cloud_sample);
+						t.detach();*/
 					}
 				}
 				if ((sampling_trigger % 100) == 0)
@@ -254,7 +279,6 @@ int main(int argc, char *argv[])
 				
 				lam = lam + step_size*grad_fx;
 				std::cout << "energy: " << fx << std::endl;
-
 				E.get_new_vertices(u);
 
 				Eigen::VectorXd u_block(4);
@@ -306,7 +330,6 @@ int main(int argc, char *argv[])
 			viewer.save_mesh_to_file("C:\\Users\\adams\\Desktop\\deformed_mesh.obj");
 			std::cout << "saving complete" << std::endl;
 			return true;
-				
     }
     return false;
   };
