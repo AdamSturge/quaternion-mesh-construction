@@ -8,7 +8,7 @@ struct Energy {
 	const Eigen::MatrixXd& V_;
 	const Eigen::MatrixXi& F_;
 	const Eigen::SparseMatrix<stan::math::var>& L_;
-	const Eigen::SimplicialLLT<Eigen::SparseMatrix<stan::math::var>>& L_sol_;
+	const Eigen::SimplicialLDLT<Eigen::SparseMatrix<stan::math::var>>& L_sol_;
 	const Eigen::SparseMatrix<double>& Baryl_coords_;
 	const Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1>& P_;
 	const Eigen::Matrix<stan::math::var, Eigen::Dynamic, Eigen::Dynamic>& N_;
@@ -18,7 +18,7 @@ struct Energy {
 		const Eigen::MatrixXd& V,
 		const Eigen::MatrixXi& F,
 		const Eigen::SparseMatrix<stan::math::var>& L,
-		const Eigen::SimplicialLLT<Eigen::SparseMatrix<stan::math::var>>& L_sol,
+		const Eigen::SimplicialLDLT<Eigen::SparseMatrix<stan::math::var>>& L_sol,
 		const Eigen::SparseMatrix<double>& BC,
 		const Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1>& P,
 		const Eigen::Matrix<stan::math::var, Eigen::Dynamic, Eigen::Dynamic>& N) : V_(V), F_(F), L_(L), L_sol_(L_sol), Baryl_coords_(BC), P_(P), N_(N)
@@ -111,15 +111,22 @@ struct Energy {
 			}
 		}
 		omega = omega - Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1>::Constant(omega.rows(), omega.cols(), omega.mean());
-
 		Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> f_tilde = L_sol_.solve(L_.transpose()*omega);
 		f_tilde_ = f_tilde;
-		Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> x_tilde = Baryl_coords_*f_tilde;
 
+		//std::cout << f_tilde.topRows(12) << std::endl;
+		
+		if(L_sol_.info() != Eigen::Success)
+		{
+			std::cout << "Failed to solve for new vertices" << std::endl;
+		}
+
+		Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> x_tilde = Baryl_coords_*f_tilde;
+		
 		Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> diff = P_ - x_tilde;
 		int num_samples = 0.25*Baryl_coords_.rows();
 		Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> plane_dist(num_samples, 1);
-		
+
 		for(int i = 0; i < num_samples; ++i)
 		{
 			Eigen::Matrix<stan::math::var, 3, 1> u = diff.block(4 * i + 1, 0, 3, 1);

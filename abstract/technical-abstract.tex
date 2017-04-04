@@ -2,6 +2,8 @@
 
 \usepackage{booktabs} % For formal tables
 \usepackage{graphicx}
+\definecolor{links}{HTML}{2A1B81}
+\hypersetup{colorlinks,linkcolor=,urlcolor=links}
 \graphicspath{{./images/} }
 % Copyright
 \setcopyright{none}
@@ -76,6 +78,11 @@ Mesh (re)construction is the task of building a mesh out of only partial data, m
 
 \maketitle
 
+\section{Links}
+\href{https://github.com/AdamSturge/geometry-processing-project}{\includegraphics[scale=.03]{code-icon.png}}
+\hspace{1mm}
+\href{https://drive.google.com/open?id=0Bxe_aqElJ61ULXk0S284Y25xME0}{\includegraphics[scale=.058]{video-play.png}}
+
 \section{Introduction}
 
 Mesh (re)construction is a common problem faced in the video game, animation, and fabrication industries. How to transform a 3D scan of a person or object into a 3D model that can be animated or studied is an important question. Some of the more common ways to deal with this issue are through implict surfaces \cite{Hoppe:2006} or computational geometry \cite{Amenta:2001:PC:376957.376986}.
@@ -90,11 +97,11 @@ In their paper "Spin Transformations of Discrete Surfaces" \cite{Crane:2011:STD}
 \label{eqn:01}
 d\tilde{f} = \bar{\lambda}df\lambda 
 \end{equation}
-relating the differentials of two surfaces $\tilde{f}$ and $f$ by a quaternion $\lambda$, as well as a sufficient condition for the existence of such a transformation characterized in terms of curvature half density differences between the two surfaces. For our work we will be leaning heavily on these results, specifically the former. The discretization Crane et al discuss leads to the following least squares problem
+relating the differentials of two surfaces $\tilde{f}$ and $f$ by a quaternion $\lambda$, as well as a sufficient condition for the existence of such a transformation characterized in terms of curvature half density differences between the two surfaces. For our work we will be leaning heavily on these results, specifically the former. The discretization Crane et al discuss leads to the following least squares problem (recalling that quaternion multiplication is not commutative)
 
 \begin{align}
 \label{eqn:02}
-\tilde{e}_{ij} = \bar{\lambda_{i}}\frac{1}{3}\lambda_{i} + \bar{\lambda_{i}}\frac{1}{6}\lambda_{j} + \bar{\lambda_{j}}\frac{1}{6}\lambda_{i} + \bar{\lambda_{j}}\frac{1}{3}\lambda_{j} \\
+\tilde{e}_{ij} = \frac{1}{3}\bar{\lambda_{i}}e_{ij}\lambda_{i} + \frac{1}{6}\bar{\lambda_{i}}e_{ij}\lambda_{j} + \frac{1}{6}\bar{\lambda_{j}}e_{ij}\lambda_{i} + \frac{1}{3}\bar{\lambda_{j}}e_{ij}\lambda_{j} \\
 \Delta \tilde{f} = \nabla \cdot \tilde{e}
 \end{align}
 Where $\lambda_{i}$ is a quaternion assigned to vertex $i$ of the original mesh, $e_{ij}$ refers to the edge connecting vertex $i$ to vertex $j$, and $\tilde{f}$ is a vector of the deformed meshes vertices.

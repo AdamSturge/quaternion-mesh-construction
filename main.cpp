@@ -65,10 +65,10 @@ int main(int argc, char *argv[])
   Eigen::MatrixXd V;
   Eigen::MatrixXi F;
   igl::read_triangle_mesh("../shared/data/sphere.obj", V, F);
-	//igl::read_triangle_mesh("../shared/data/24rqomjz3oqo-face/face.obj", V, F);
+	//igl::read_triangle_mesh("../shared/data/Basemesh_01/Basemesh_01.obj", V, F);
 	//igl::read_triangle_mesh("C:\\Users\\adams\\Desktop\\deformed_mesh_head_overnight.obj", V, F);
 
-	normalize_solution(V, V);
+	//normalize_solution(V, V);
 
 	Eigen::MatrixXd U = V; // matrix used to store new vertex locations
 
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 	Eigen::SparseMatrix<stan::math::var> L_big_var(4 * L.rows(), 4 * L.cols());
 	convert_to_stan_var_sparse(L_big, L_big_var);
 	
-  Eigen::SimplicialLLT<Eigen::SparseMatrix<stan::math::var>> L_sol;
+  Eigen::SimplicialLDLT<Eigen::SparseMatrix<stan::math::var>> L_sol;
 	L_sol.compute(L_big_var.transpose()*L_big_var);
 #pragma endregion
 
@@ -202,6 +202,7 @@ int main(int argc, char *argv[])
   #pragma endregion
 
 	cloud_to_mesh_sample();
+	//mesh_to_cloud_sample();
 
 	#pragma region variables_for_grad_decent
 	Eigen::VectorXd lam(4 * V.rows());
@@ -235,7 +236,7 @@ int main(int argc, char *argv[])
 				sampling_trigger++;
 				if((sampling_trigger % 10) == 0)
 				{
-					exit = true;
+					//exit = true;
 					fx_min_new = *std::min(fx_vals.begin(),fx_vals.end());
 					if(fx_min_new - fx_min_old > 0 || abs(fx_min_new - fx_min_old) < 0.0001)
 					{
