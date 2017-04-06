@@ -59,7 +59,7 @@ void sparse_quaternion_matrix_to_real_matrix(const SparseMatrixXq QM, Eigen::Spa
 
 }
 
-void quaternion_matrix_to_real_sparse_matrix(const Eigen::MatrixXd QM, Eigen::SparseMatrix<double>& R)
+void real_quaternion_matrix_to_real_sparse_matrix(const Eigen::MatrixXd QM, Eigen::SparseMatrix<double>& R)
 {
 	int n = QM.rows();
 	int m = QM.cols();

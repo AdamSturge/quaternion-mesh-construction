@@ -32,7 +32,7 @@ void sparse_quaternion_matrix_to_real_matrix(const SparseMatrixXq Q, Eigen::Spar
 //      Q  NxM quaternion matrix
 // Outputs:
 //      R   4Nx4M real matrix
-void quaternion_matrix_to_real_sparse_matrix(const Eigen::MatrixXd QM, Eigen::SparseMatrix<double>& R);
+void real_quaternion_matrix_to_real_sparse_matrix(const Eigen::MatrixXd QM, Eigen::SparseMatrix<double>& R);
 
 // Converts a sparse real matrix to its quaternion representation
 // Inputs:    

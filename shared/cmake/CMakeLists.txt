@@ -53,11 +53,16 @@ message("libigl libraries: ${LIBIGL_LIBRARIES}")
 message("libigl extra sources: ${LIBIGL_EXTRA_SOURCES}")
 message("libigl extra libraries: ${LIBIGL_EXTRA_LIBRARIES}")
 message("libigl definitions: ${LIBIGL_DEFINITIONS}")
+
 # Prepare the build environment
 include_directories(${LIBIGL_INCLUDE_DIRS})
 add_definitions(${LIBIGL_DEFINITIONS})
 option(USE_SOLUTION "Use solution"  OFF)
 option(BUILD_TEST "Build test"  OFF)
+
+include_directories("shared/math/")
+include_directories("shared/math/lib/boost_1.62.0")
+include_directories("shared/math/lib/cvodes_2.9.0/include")
 
 # Add your project files
 include_directories("include/")
