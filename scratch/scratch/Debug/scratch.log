@@ -1,0 +1,4 @@
+﻿  scratch.cpp
+c:\uot-masters\geometry-processing\geometry-processing-project\scratch\scratch\scratch.cpp(89): warning C4018: '<': signed/unsigned mismatch
+  scratch.vcxproj -> C:\UoT-Masters\Geometry-Processing\geometry-processing-project\scratch\Debug\scratch.exe
+  scratch.vcxproj -> C:\UoT-Masters\Geometry-Processing\geometry-processing-project\scratch\Debug\scratch.pdb (Full PDB)

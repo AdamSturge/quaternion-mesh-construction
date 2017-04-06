@@ -1,31 +1,19 @@
-#define GLOG_NO_ABBREVIATED_SEVERITIES // Has a clash with windows.h. Not sure where that's being included. This fixes it?
-#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
-#define NO_STRICT
 #include <igl/list_to_matrix.h>
 #include <igl/read_triangle_mesh.h>
 #include <igl/viewer/Viewer.h>
 #include <Eigen/Core>
 #include <string>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 #include <vector>
-#include <cstdlib>
 #include <eigen_fileio.h>
 #include <igl/cotmatrix.h>
 #include <gradient_ascent.h>
 #include <igl/barycentric_coordinates.h>
 #include <closest_points_cloud_to_mesh.h>
 #include <sample_points.h>
-#include <solve_for_lambda.h>
 #include <quaternion_matrix.h>
 #include <convert_to_stan_var.h>
 #include <normalize_solution.h>
-#include <thread>
-#include <mutex>
-#include <solve_for_lambda.h>
-#include <new_vertex_positions.h>
 
 int main(int argc, char *argv[])
 {
@@ -42,8 +30,6 @@ int main(int argc, char *argv[])
     std::vector<std::vector<double> > vD;
     std::string line;
     std::fstream in;
-    //in.open(argc>1?argv[1]:"../shared/data/sphere-noisy.pwn");
-		//in.open(argc>1 ? argv[1] : "../shared/data/hand.pwn");
 		in.open(argc>1 ? argv[1] : "C:\\UoT-Masters\\Geometry-Processing\\geometry-processing-project\\shared\\data\\head.pwn");
 		
     while(in)
@@ -65,8 +51,6 @@ int main(int argc, char *argv[])
   Eigen::MatrixXd V;
   Eigen::MatrixXi F;
   igl::read_triangle_mesh("../shared/data/sphere.obj", V, F);
-	//igl::read_triangle_mesh("../shared/data/Basemesh_01/Basemesh_01.obj", V, F);
-	//igl::read_triangle_mesh("C:\\Users\\adams\\Desktop\\deformed_mesh_head_overnight.obj", V, F);
 
 	//normalize_solution(V, V);
 
@@ -111,7 +95,6 @@ int main(int argc, char *argv[])
   Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1> P_vec(4 * num_samples, 1);
 	Eigen::SparseMatrix<double> X_b_big = Eigen::SparseMatrix<double>(4 * num_samples, 4 * V.rows());
 	Eigen::Matrix<stan::math::var, Eigen::Dynamic, Eigen::Dynamic> N_var(num_samples, 3);
-	//std::mutex mutex;
 	const auto compute_grad_decent_matricies = [&](Eigen::MatrixXd P, Eigen::MatrixXd X_w, Eigen::MatrixXd N, std::vector<int> FL)
 	{
 		// Vectorize P
@@ -157,18 +140,13 @@ int main(int argc, char *argv[])
 		Eigen::Matrix<stan::math::var, Eigen::Dynamic, Eigen::Dynamic> N_var_tmp(num_samples, 3);
 		convert_to_stan_var(N, N_var_tmp);
 
-		//mutex.lock();
 		P_vec = P_vec_tmp;
 		X_b_big = X_b_big_tmp;
 		N_var = N_var_tmp;
-		//mutex.unlock();
-	
 	};
 	
-  //bool sampling_running = false;
 	const auto mesh_to_cloud_sample = [&]()
 	{
-		//sampling_running = true;
 		std::cout << "sampling: mesh to cloud" << std::endl;
 		Eigen::MatrixXd X_w = Eigen::MatrixXd(num_samples, 3);
 		Eigen::MatrixXd P = Eigen::MatrixXd(num_samples, 3);
@@ -178,13 +156,11 @@ int main(int argc, char *argv[])
 		sample_points(num_samples, U, F, target_points, target_normals, X_w, P, N, FL);
 		compute_grad_decent_matricies(P, X_w, N, FL);
 		
-		//sampling_running = false;
 		std::cout << "done sampling: mesh to cloud" << std::endl;
 	};
 
 	const auto cloud_to_mesh_sample = [&]()
 	{
-		//sampling_running = true;
 		std::cout << "sampling: cloud to mesh" << std::endl;
 		Eigen::MatrixXd X_w = Eigen::MatrixXd(num_samples, 3);
 		Eigen::MatrixXd P = Eigen::MatrixXd(num_samples, 3);
@@ -196,7 +172,6 @@ int main(int argc, char *argv[])
 		closest_points_cloud_to_mesh(U, F, P, X_w, FL);
 		
 		compute_grad_decent_matricies(P, X_w, N, FL);
-		//sampling_running = false;
 		std::cout << "done sampling: cloud to mesh" << std::endl;
 	};
   #pragma endregion
@@ -236,7 +211,6 @@ int main(int argc, char *argv[])
 				sampling_trigger++;
 				if((sampling_trigger % 10) == 0)
 				{
-					//exit = true;
 					fx_min_new = *std::min(fx_vals.begin(),fx_vals.end());
 					if(fx_min_new - fx_min_old > 0 || abs(fx_min_new - fx_min_old) < 0.0001)
 					{
@@ -251,16 +225,10 @@ int main(int argc, char *argv[])
 					if(cloud_to_mesh)
 					{
 						cloud_to_mesh_sample();
-						/*std::cout << "starting thread" << std::endl;
-						std::thread t(cloud_to_mesh_sample);
-						t.detach();*/
 					}
 					else 
 					{
 						mesh_to_cloud_sample();
-						/*std::cout << "starting thread" << std::endl;
-						std::thread t(mesh_to_cloud_sample);
-						t.detach();*/
 					}
 				}
 				if ((sampling_trigger % 100) == 0)
@@ -299,17 +267,9 @@ int main(int argc, char *argv[])
   {
     switch(key)
     {
-		case 'C':
-		case 'c':
-			cloud_to_mesh_sample();
-			return true;
 		case 'H':
 		case 'h': 
 			exit = !exit; 
-			return true;
-		case 'I':
-    case 'i':
-			mesh_to_cloud_sample();
 			return true;
 		case 'P':
 		case 'p':
