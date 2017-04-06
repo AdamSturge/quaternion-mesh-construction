@@ -3,7 +3,16 @@
 #include <stan\math.hpp>
 #include <Eigen/SparseCholesky>
 #include <Eigen/SparseQR>
-
+// Represents the energy that is being minimzied
+// Members:
+//   V_ Kx3 Vertices of mesh being deformed
+//   F_ Faces of mesh being deformed
+//   L_ 4Kx4K Cotangent laplacian blown up to a quaternion matrix representation of 4x4 blocks
+//   L_sol_ Solver to solve least squares problems for new vertex posisitions Lf = w
+//   Baryl_coords_ 4Kx4K Barylcentric coordinates of points sampled from mesh, blown up to quaternionic matrix representation of 4x4 blocks. Baryl_coords_f = x_tilde
+//   P_ Mx3 Matrix of closest points in point cloud to points sampled from mesh
+//   N_ Mx3 Mx3 Matrix of normals to closest points in point cloud to points sampled from mesh
+//   f_tilde_ 4*Kx1 quaternionic representation of vertex positions after deformation
 struct Energy {
 	const Eigen::MatrixXd& V_;
 	const Eigen::MatrixXi& F_;
@@ -26,7 +35,10 @@ struct Energy {
 		f_tilde_ = Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1>();
 	}
 
-	void get_new_vertices(Eigen::VectorXd& u)
+	// Converts new vertices from stan::mat::var vector to double vector
+    // Outputs:
+    //      u vertices after deformation represented as single vector of doubles
+    void get_new_vertices(Eigen::VectorXd& u)
 	{
 		int n_f = f_tilde_.rows();
 		u = Eigen::VectorXd(n_f);
@@ -36,7 +48,16 @@ struct Energy {
 		}
 	}
 
-	template <typename T>
+    // Given 4 values creaats a block matrix representation of the quaternion with those 4 components
+    // Inputs:
+    //      a   real part of quaternion
+    //      b   first imaginary component
+    //      c   second imaginary component
+    //      d   third imaginary component
+    // Outputs:
+    //      Q  Matrix representation of the quaternion with components a,b,c,d
+    //      Q_bar  Complex conjugate of Q
+    template <typename T>
 	void quaternion_block(const T a, const T b, const T c, const T d, Eigen::Matrix<T, 4, 4>& Q, Eigen::Matrix<T, 4, 4>& Q_bar) const
 	{
 		Q << a, -b, -c, -d,
@@ -50,7 +71,12 @@ struct Energy {
 			      -d,  c, -b,  a;
 	}
 
-	stan::math::var operator()(const Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1>& lambda) const {
+    // Given an input vector computes the gradient of E evalued at the vector
+    // Inputs:
+    //      lambda   vector to evaluate gradient at
+    // Outputs:
+    //      Energy value
+    stan::math::var operator()(const Eigen::Matrix<stan::math::var, Eigen::Dynamic, 1>& lambda) const {
 
 		int n_V = V_.rows();
 		int n_F = F_.rows();

@@ -4,16 +4,14 @@
 #include <iostream>
 #include <fstream>
 
-//namespace Eigen {
-//	template<class Matrix>
-//	void write_binary(const std::string filename, const Matrix& matrix);
-//	template<class Matrix>
-//	void read_binary(const std::string filename, Matrix& matrix);
-//}
-
 namespace Eigen {
 	
-	template<class T>
+	 // Writes a dense Eigen matrix to disk
+    // Inputs:
+    //   filename filename including path
+    //   matrix  NxM matrix of doubles
+    // Outputs:
+    template<class T>
 	void write_binary_dense(const std::string filename, const Eigen::Matrix<T,-1,-1>& matrix) {
 		std::ofstream out(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 		typename Eigen::Matrix<T, -1, -1>::Index rows = matrix.rows(), cols = matrix.cols();
@@ -23,7 +21,12 @@ namespace Eigen {
 		out.close();
 	}
 
-	template<class T>
+    // Reads a dense Eigen matrix to disk
+    // Inputs:
+    //   filename filename including path
+    //   matrix  NxM matrix of doubles
+    // Outputs:
+    template<class T>
 	void read_binary_dense(const std::string filename, Eigen::Matrix<T,-1,-1>& matrix) {
 		std::ifstream in(filename, std::ios::in | std::ios::binary);
 		typename Eigen::Matrix<T,-1,-1>::Index rows = 0, cols = 0;
@@ -34,7 +37,12 @@ namespace Eigen {
 		in.close();
 	}
 
-	template <typename T>
+    // Writes a sparse Eigen matrix to disk
+    // Inputs:
+    //   filename filename including path
+    //   matrix  NxM matrix of doubles
+    // Outputs:
+    template <typename T>
 	void write_binary_sparse(const std::string filename, Eigen::SparseMatrix<T>& X) {
 		std::vector<Eigen::Triplet<T>> res;
 		int sz = X.nonZeros();
@@ -66,7 +74,12 @@ namespace Eigen {
 		}
 	}
 
-	template <typename T>
+    // Reads a sparse Eigen matrix to disk
+    // Inputs:
+    //   filename filename including path
+    //   matrix  NxM matrix of doubles
+    // Outputs:
+    template <typename T>
 	void read_binary_sparse(const std::string filename, Eigen::SparseMatrix<T>& X) {
 		std::fstream readFile;
 		readFile.open(filename, std::ios::binary | std::ios::in);
