@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
   // Create a libigl Viewer object to toggle between point cloud and mesh
   igl::viewer::Viewer viewer;
   std::cout<<R"(
+   P  Toggle point cloud
   )";
 
 	// load seed mesh into viewer
@@ -184,7 +185,6 @@ int main(int argc, char *argv[])
 	double step_size = -1.0;
 	double step_decay = 0.9;
 	bool points_visible = true;
-	bool exit = true;
 	Eigen::VectorXd u(4 * V.rows()); //vectorized new vertex positions (as quaternions)
 	int sampling_trigger = 1;
 	bool cloud_to_mesh = false;
@@ -201,64 +201,61 @@ int main(int argc, char *argv[])
 		}
 	}
  #pragma endregion  
-
 	viewer.callback_pre_draw = [&](igl::viewer::Viewer &)->bool
 	{
 		if (viewer.core.is_animating)
 		{
-			if (exit == false)
+
+			sampling_trigger++;
+			if((sampling_trigger % 10) == 0)
 			{
-				sampling_trigger++;
-				if((sampling_trigger % 10) == 0)
+				fx_min_new = *std::min(fx_vals.begin(),fx_vals.end());
+				if(fx_min_new - fx_min_old > 0 || abs(fx_min_new - fx_min_old) < 0.0001)
 				{
-					fx_min_new = *std::min(fx_vals.begin(),fx_vals.end());
-					if(fx_min_new - fx_min_old > 0 || abs(fx_min_new - fx_min_old) < 0.0001)
-					{
-						cloud_to_mesh = !cloud_to_mesh;
-						fx_min_old = INT_MAX;
-					}else
-					{
-						fx_min_old = fx_min_new;
-					}
+					cloud_to_mesh = !cloud_to_mesh;
+					fx_min_old = INT_MAX;
+				}else
+				{
+					fx_min_old = fx_min_new;
+				}
 					
-					fx_vals.clear();
-					if(cloud_to_mesh)
-					{
-						cloud_to_mesh_sample();
-					}
-					else 
-					{
-						mesh_to_cloud_sample();
-					}
-				}
-				if ((sampling_trigger % 100) == 0)
+				fx_vals.clear();
+				if(cloud_to_mesh)
 				{
-					std::cout << "reducing step size from " << step_size << " to " << step_decay*step_size << std::endl;
-					step_size = step_decay*step_size;
-					sampling_trigger = 0;
+					cloud_to_mesh_sample();
 				}
-
-				Energy E(V, F, L_big_var, L_sol, X_b_big, P_vec, N_var);
-				double fx;
-				Eigen::Matrix<double, Eigen::Dynamic, 1> grad_fx;
-				stan::math::gradient(E, lam, fx, grad_fx);
-				fx_vals.push_back(fx);
-
-				grad_fx.normalize();
-				
-				lam = lam + step_size*grad_fx;
-				std::cout << "energy: " << fx << std::endl;
-				E.get_new_vertices(u);
-
-				Eigen::VectorXd u_block(4);
-				for (int i = 0; i < U.rows(); ++i)
+				else 
 				{
-					u_block = u.block(4 * i, 0, 4, 1);
-					U.row(i) = u_block.bottomRows(3).transpose();
+					mesh_to_cloud_sample();
 				}
-				
-				viewer.data.set_mesh(U, F);
 			}
+			if ((sampling_trigger % 100) == 0)
+			{
+				std::cout << "reducing step size from " << step_size << " to " << step_decay*step_size << std::endl;
+				step_size = step_decay*step_size;
+				sampling_trigger = 0;
+			}
+
+			Energy E(V, F, L_big_var, L_sol, X_b_big, P_vec, N_var);
+			double fx;
+			Eigen::Matrix<double, Eigen::Dynamic, 1> grad_fx;
+			stan::math::gradient(E, lam, fx, grad_fx);
+			fx_vals.push_back(fx);
+
+			grad_fx.normalize();
+				
+			lam = lam + step_size*grad_fx;
+			std::cout << "energy: " << fx << std::endl;
+			E.get_new_vertices(u);
+
+			Eigen::VectorXd u_block(4);
+			for (int i = 0; i < U.rows(); ++i)
+			{
+				u_block = u.block(4 * i, 0, 4, 1);
+				U.row(i) = u_block.bottomRows(3).transpose();
+			}
+				
+			viewer.data.set_mesh(U, F);
 		}
 		return false;
 	};
@@ -267,10 +264,6 @@ int main(int argc, char *argv[])
   {
     switch(key)
     {
-		case 'H':
-		case 'h': 
-			exit = !exit; 
-			return true;
 		case 'P':
 		case 'p':
 			if(points_visible)
@@ -294,7 +287,7 @@ int main(int argc, char *argv[])
     }
     return false;
   };
-	viewer.core.is_animating = true;
+	viewer.core.is_animating = false;
   viewer.launch();
 	
 
