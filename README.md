@@ -17,3 +17,9 @@ Conformal Quaternion Based Mesh (Re)Construction is a method for deforming a see
     </tr>
   </tbody>
 </table>
+
+Setup
+
+- Clone the repo to your local machine
+- Create a build folder alongside main.cpp
+- Run cmake from one level above the build folder with the target being the build folder. Be sure to use a 64 bit compiler as the large matrices involved in this project cannot be handled by 32 bit. You will be runtime memory errors otherwise. 
