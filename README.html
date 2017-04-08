@@ -75,7 +75,7 @@ To do so we must first go over some of the results from the paper <a href="https
 </p>
 
 <p>
-Keenan et al build on previous results detailing so called "spin transformations" of surfaces. These are transformations of a surface $f$ by a quaternion $\lambda$ defined by:
+Keenan et al build on previous results detailing so called "spin transformations" of surfaces. These are transformations of a surface $f$ by a <a href="https://en.wikipedia.org/wiki/Quaternion">quaternion</a> $\lambda$ defined by:
 </p>
 
 <p>
@@ -83,9 +83,14 @@ $d\tilde{f} = \bar{\lambda} df \lambda$
 </p>
 
 <p>
-where $df$ and $d\tilde{f}$ are the differential one forms associated with the orignal surface $f$ and transformed surface $\tilde{f}$. 
-In their paper they develop a discrete version of this equation by assigning each vertex $v_{i}$ a quaternion $\lambda_{i}$. The relationship between the original vertices 
-and the transformed vertices is constructed as a Poisson problem over the edges of the meshes:
+where $df$ and $d\tilde{f}$ are the differential <a href="https://en.wikipedia.org/wiki/One-form#Differential_of_a_function">one forms</a> associated with the orignal surface $f$ and transformed surface $\tilde{f}$. 
+</p>
+<p>
+This equation is saying that on a infinitely small scale the relationship between $f$ and $\tilde{f}$ is a <a href="http://run.usc.edu/cs520-s12/quaternions/quaternions-cs520.pdf">rotation and scale</a>.
+</p>
+<p>
+In their paper Keenan et al develop a discrete version of this equation by assigning each vertex $v_{i}$ a quaternion $\lambda_{i}$. The relationship between the original vertices 
+and the transformed vertices is constructed as a <a href="https://en.wikipedia.org/wiki/Poisson%27s_equation">Poisson problem</a> over the edges of the meshes:
 </p>
 
 <p>
@@ -111,13 +116,13 @@ Where:
 </p>
 
 <p>
-This system can be solved in a least squares sense for $\tilde{f}$
+This system can be solved in a <a href="https://en.wikipedia.org/wiki/Least_squares">least squares</a> sense for $\tilde{f}$
 </p>
 
 <blockquote>
 <h5 id="quaternion_vectors">Hold the phone. Quaternion vectors?</h5>
 <p>
-So you might be wondering how exactly $\tilde{e}$ and $\tilde{f}$ each represents edges and vertices. After all each one is just a vector of quaternions. Keenan et all use the following embedding of $\mathbb{R}^{3}$ into $\mathbb{H}$. 
+So you might be wondering how exactly $\tilde{e}$ and $\tilde{f}$ represent edges and vertices. After all each one is just a vector of quaternions. Keenan et all use the following embedding of $\mathbb{R}^{3}$ into $\mathbb{H}$. 
 Each vector $\vec{p}=(x,y,z)$ in $\mathbb{R}^{3}$ is mapped to a purely imaginary quaternion $(0,x,y,z)$ So the vector $\vec{\tilde{e}} \in \mathbb{H}^{|E| \times 1}$ is represented 
 as an expanded vector $\vec{\tilde{e}}_{\mathbb{R}} \in \mathbb{R}^{4|E| \times 1}$. Similarly for $\vec{\tilde{f}}$.
 </p>
@@ -156,7 +161,7 @@ Recalling the quaternion multiplication is not commutative. Here $e_{ij}$ is the
 <h2 id="goal">Goal</h2>
 <p>
 Our goal is to find an appropriate vector of quaternions $\vec{\lambda} = (\lambda_{1},\lambda_{2},\ldots,\lambda_{n})$ that will deform the seed mesh into the mesh implied by the point cloud. 
-To do that we will need some way to measuring how "good" the resuling mesh is. As such we will cast this problem as an energy minimization problem. The first step in this direction is defining our energy
+To do that we will need some way to measuring how "good" the resuling mesh is. Therefore we will cast this problem as an <a href="https://en.wikipedia.org/wiki/Mathematical_optimization#Optimization_problems">energy minimization problem</a>. The first step in this direction is defining our energy
 </p>
 
 <h2 id="energy">Energy</h2>
@@ -197,7 +202,7 @@ $E(\vec{\lambda}) = \int\limits_{x \in f}((x(\vec{\lambda}) - p(x(\vec{\lambda})
 </p>
 
 <p>
-This energy is measuring the distance between a point $x \in f$ and the plane defined by $p \in \tilde{f}$ and $n_{p}$. It is a looser restriction since the points $x$ and $y$ 
+This energy is measuring the distance between a point $x \in f$ and the plane defined by $p \in \tilde{f}$ and $n_{p}$. It is a looser restriction since the points $x$ and $p$ 
 need only lie in the same plane for their contribution to the energy to be zero
 </p>
 
@@ -223,6 +228,16 @@ $E(\vec{\lambda}) \approx \frac{1}{k}\sum\limits_{i=1}^{k}||\vec{x}_{i}(\vec{\la
 E(\vec{\lambda}) \approx \frac{1}{k}\sum\limits_{i=1}^{k}((\vec{x}_{i}(\vec{\lambda}) - \vec{p}_{i}) \cdot \vec{n}_{i})^{2}$
 </p>
 
+<p>
+Geometrically the first energy is assuming that in the neighbourhood of each point $\vec{p}_{i}$ the target mesh $\tilde{f}$ is approximately a point. Imagine perhaps a large spike with the point at the tip. 
+This is obviously an unrealistic assumption but it serves as a good base line and works okay in practice.
+</p>
+<p>
+The second energy can be seen as instead assuming that in the neighbourhood of each point $\vec{p}_{i}$ the target mesh $\tilde{f}$ is approximately a plane. 
+This is much more realistic assumption and tends to work better as long as your points don't "slide" too much as they are moved close to eachother. Meaning you do want $\vec{x}_{i}$ and $\vec{p}_{i}$ to end up 
+close to each other, not just in the same infinite plane.
+</p>
+
 <h3 id="gradient_decent"> Gradient decent </h3>
 <p>
 Even after making this approxiation we still are faced with a major issue. The relationship between $\vec{x}_{i}$ and $\vec{x}_{i}(\lambda)$ is a complicated one involving solving a least squares problem. As such finding a closed form minimizer 
@@ -237,7 +252,7 @@ $\tilde{\vec{\lambda}}$ is difficult. Instead we will use <a href="https://en.wi
 <p> 
 Where $\alpha > 0$ is a parameter that we set to control how far we step in the gradient direction. This works because the gradient always points in the direction of steepest change.
 The negative sign in the second step ensures that we will be stepping "downhill" towards a minimum instea of "uphill" towards a maximum. 
-All thats required to start the algorithm is an inital guess at the minimizer $\vec{\tilde{\lambda}} \approx \vec{\eta}_{0} \in \mathbb{H}^{|V| \times 1}$. For our purposes we use $\vec{\eta}_{0} = (\mathbb{I},\mathbb{I},...,\mathbb{I})$ where $\mathbb{I}$ is 
+All that's required to start the algorithm is an inital guess at the minimizer $\vec{\tilde{\lambda}} \approx \vec{\eta}_{0} \in \mathbb{H}^{|V| \times 1}$. For our purposes we use $\vec{\eta}_{0} = (\mathbb{I},\mathbb{I},...,\mathbb{I})$ where $\mathbb{I}$ is 
 the identity transformation quaternion $\mathbb{I}=(1,0,0,0)$; which represents no rotation or scale.
 </p>
 
@@ -261,6 +276,7 @@ We are now in a place to dicuss our algorithm as a whole.
 <h4> Mesh to cloud</h4>
 <p>
 The sampling proceedure for a triangle mesh is described in the readme for <a href="https://github.com/AdamSturge/geometry-processing-registration">registration</a> under the heading "Uniform random sampling of a triangle mesh". 
+It is repreated here for completeness.
 </p>
 <blockquote>
 <h3 id="uniformrandomsamplingofasingletriangle">Uniform random sampling of a single triangle</h3>
@@ -327,22 +343,25 @@ Each iteration of gradient decent requires solving the least squares problem $\m
 To that end a <a href="https://en.wikipedia.org/wiki/Cholesky_decomposition#LDL_decomposition">LDL</a> decomposition is used to solve this system. In practice I've found the solving the system 
 $\mat{L}^{T}\mat{L}\vec{\tilde{f}} = \mat{L}^{T}\mat{D}\vec{\tilde{e}}$ produces better results. Even with this fast solver each iteration of gradient decent can take between one and two seconds.
 </p>
+<p>
+Once the new vertices $\vec{\tilde{f}}$ have been computed $\vec{x}_{i}(\vec{\lambda})$ can be found by a taking the barycentric coordinates for $\vec{x}_{i}$ and applying them to the appropriate transformed vertices.
+</p>
 
 <h3 id="tech_details_gradient_decent">Gradient decent</h3>
 <p>
-Selecting the idea $\alpha$ value is a matter of trail and error. One common technique is to start out with a fairly high $\alpha$, say $\alpha=1$, and decrease it every so many iterations. 
-This way you jump fast when you are most likely far away from your local minima and become more fine grained as time goes on.
+Selecting the ideal $\alpha$ value is a matter of trail and error. One common technique is to start out with a fairly high $\alpha$, say $\alpha=1$, and decrease it every so many iterations. 
+This way you make large jumps when you are most likely far away from your local minima and become more fine grained as time goes on.
 </p>
 <p>
 In practice I found it better to run a relatiely small number of gradient decent iterations, around $10$, before resampling. This helped jiggle the decent out of any high energy local minimia it might get stuck in. 
-As a note on this point, since our optimization problem is not convex there is no gaurentee that gradient decent will converge to a global minimum. However a local minimum is getter than a random guess.
+As a note on this point, since our optimization problem is not convex there is no gaurentee that gradient decent will converge to a global minimum. However a local minimum is better than a random guess.
 </p>
 
 <h3 id="tech_details_ICP">Iterative Closest Point</h3>
 <p>
 In classic ICP you update your mesh after each iteration. I found it was generally better to always deform the smooth geometry of the initial seed mesh over the potentially jagged geometry of an intermediate mesh. 
 Therefore my code uses the deformed mesh for resampling and computing closests points, but attempts to find a $\vec{\lambda}$ that will deform the sphere to minimize the energy between those points. 
-Cast in this light the algorithm is for an optimal pairing of points $(\vec{x}_{i},\vec{p}_{i})$ as well as an optimal $\vec{\lambda}$ to bring those points together. 
+Cast in this light the algorithm defined above is for finding an optimal pairing of points $(\vec{x}_{i},\vec{p}_{i})$ as well as an optimal $\vec{\lambda}$ to bring those points together. 
 All this means in practice is that you do not reassign your mesh after each step of ICP.
 </p>
 
