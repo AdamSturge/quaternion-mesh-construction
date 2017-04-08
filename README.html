@@ -5,7 +5,7 @@
 	<link type="text/css" rel="stylesheet" href="shared/css/style.css"/>
 <script type="text/javascript" src="shared/js/MathJax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']], skipTags: ["script","noscript","style","textarea"]}});
 </script>
 </head>
 <body>
@@ -230,8 +230,8 @@ $\tilde{\vec{\lambda}}$ is difficult. Instead we will use <a href="https://en.wi
 </p>
 
 <ul>
-<li>Compute $\beta = \nabla E(\vec{\lambda})|_{\lambda = \eta}$</li>
-<li>Update $\eta$ by $\eta \rightarrow \eta - \alpha||\beta||$</li>
+    <li>Compute $\vec{\beta} = \nabla E(\vec{\lambda})|_{\lambda = \eta}$</li>
+    <li>Update $\vec{\eta}$ by $\vec{\eta} \rightarrow \vec{\eta} - \alpha||\vec{\beta}||$</li>
 </ul>
 
 <p> 
@@ -242,7 +242,19 @@ the identity transformation quaternion $\mathbb{I}=(1,0,0,0)$; which represents 
 </p>
 
 <h2 id="bringing_it_together">Bringing it all together</h2>
-
+<p>
+We are now in a place to dicuss our algorithm as a whole.
+</p>
+<code>
+1. Define $\vec{\lambda} = (\mathbb{I},\mathbb{I},...,\mathbb{I})$ and $\alpha > 0$ </br>
+2. LOOP FOREVER: </br>
+3.&nbsp;&nbsp;&nbsp;&nbsp;Select sampling method based on current energy value $E(\vec{\lambda})$</br>
+4.&nbsp;&nbsp;&nbsp;&nbsp;Sample seed mesh and point cloud to generate $k$ pairs $(\vec{x}_{i},\vec{p}_{i})$ </br>
+5.&nbsp;&nbsp;&nbsp;&nbsp;REPEAT UNTIL CONVERGENCE OR UNTIL MAX ITERATION NUMBER IS REACHED </br>
+6.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compute $\vec{x}_{i}(\vec{\lambda})$ for each $\vec{x}_{i}$ </br>
+7.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compute $E(\vec{\lambda})$ and $\nabla E(\vec{\lambda})$ </br>
+8.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\vec{\lambda} \rightarrow \vec{\lambda} - \alpha||\nabla E(\vec{\lambda})||$ </br>
+</code>
 
 
 
