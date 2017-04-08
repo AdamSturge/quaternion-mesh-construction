@@ -322,10 +322,29 @@ For more details see <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=
 </p>
 
 <h3 id="tech_details_solving_lease_sqaures">Solving the least squares problem</h3>
+<p>
+Each iteration of gradient decent requires solving the least squares problem $\mat{L}\vec{\tilde{f}} = \mat{D}\vec{\tilde{e}}$ for $\vec{\tilde{f}}$. As such it is imperative that this system be solved as fast as possible. 
+To that end a <a href="https://en.wikipedia.org/wiki/Cholesky_decomposition#LDL_decomposition">LDL</a> decomposition is used to solve this system. In practice I've found the solving the system 
+$\mat{L}^{T}\mat{L}\vec{\tilde{f}} = \mat{L}^{T}\mat{D}\vec{\tilde{e}}$ produces better results. Even with this fast solver each iteration of gradient decent can take between one and two seconds.
+</p>
 
 <h3 id="tech_details_gradient_decent">Gradient decent</h3>
+<p>
+Selecting the idea $\alpha$ value is a matter of trail and error. One common technique is to start out with a fairly high $\alpha$, say $\alpha=1$, and decrease it every so many iterations. 
+This way you jump fast when you are most likely far away from your local minima and become more fine grained as time goes on.
+</p>
+<p>
+In practice I found it better to run a relatiely small number of gradient decent iterations, around $10$, before resampling. This helped jiggle the decent out of any high energy local minimia it might get stuck in. 
+As a note on this point, since our optimization problem is not convex there is no gaurentee that gradient decent will converge to a global minimum. However a local minimum is getter than a random guess.
+</p>
 
 <h3 id="tech_details_ICP">Iterative Closest Point</h3>
+<p>
+In classic ICP you update your mesh after each iteration. I found it was generally better to always deform the smooth geometry of the initial seed mesh over the potentially jagged geometry of an intermediate mesh. 
+Therefore my code uses the deformed mesh for resampling and computing closests points, but attempts to find a $\vec{\lambda}$ that will deform the sphere to minimize the energy between those points. 
+Cast in this light the algorithm is for an optimal pairing of points $(\vec{x}_{i},\vec{p}_{i})$ as well as an optimal $\vec{\lambda}$ to bring those points together. 
+All this means in practice is that you do not reassign your mesh after each step of ICP.
+</p>
 
 
 
