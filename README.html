@@ -356,6 +356,11 @@ This way you make large jumps when you are most likely far away from your local 
 In practice I found it better to run a relatiely small number of gradient decent iterations, around $10$, before resampling. This helped jiggle the decent out of any high energy local minimia it might get stuck in. 
 As a note on this point, since our optimization problem is not convex there is no gaurentee that gradient decent will converge to a global minimum. However a local minimum is better than a random guess.
 </p>
+<p>
+Finding a closed form for the gradient is part of what makes this problem so difficult. However in recent years there has been an explosion of numerical automatic differentiation software packages. In my code I make use of
+Stan (<a href="https://arxiv.org/abs/1509.07164">paper</a>, <a href="https://github.com/stan-dev/math">code</a>). Stan uses <a href="https://en.wikipedia.org/wiki/Automatic_differentiation#Reverse_accumulation">reverse mode automatic differentiation</a>
+to enable efficent computation of both $E(\vec{\lambda})$ and $\nabla E(\vec{\lambda})$.
+</p>
 
 <h3 id="tech_details_ICP">Iterative Closest Point</h3>
 <p>
