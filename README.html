@@ -172,16 +172,16 @@ Denoting by $P_{\tilde{f}}(x)$ the closest point on the target mesh $\tilde{f}$ 
 </p>
 
 <p>
-$E = \int\limits_{x \in f}||x - y(x)||^{2}df$ 
+$E = \int\limits_{x \in f}||x - p(x)||^{2}df$ 
 </p>
 
 <p>
-Where $y = P_{\tilde{f}}(x)$. Since we will be deforming the seed mesh according to the vector $\vec{\lambda}$ we seek to miniminze this energy with respect to $\lambda$. 
+Where $p = P_{\tilde{f}}(x)$. Since we will be deforming the seed mesh according to the vector $\vec{\lambda}$ we seek to miniminze this energy with respect to $\lambda$. 
 In order to make the dependence on $\lambda$ more explicit lets rewrite the energy minimzation problem as
 </p>
 
 <p>
-$\min\limits_{\vec{\lambda}} E(\vec{\lambda}) = \min\limits_{\vec{\lambda}} \int\limits_{x \in f}||x(\vec{\lambda}) - y(x(\vec{\lambda}))||^{2}df$
+$\min\limits_{\vec{\lambda}} E(\vec{\lambda}) = \min\limits_{\vec{\lambda}} \int\limits_{x \in f}||x(\vec{\lambda}) - p(x(\vec{\lambda}))||^{2}df$
 </p>
 
 <p>Here $x(\vec{\lambda})$ represents the position of the point $x \in f$ after $f$ is transformed by $\vec{\lambda}$.</p>
@@ -193,18 +193,18 @@ at that point then we can use point to plane energy:
 </p>
 
 <p>
-$E(\vec{\lambda}) = \int\limits_{x \in f}((x(\vec{\lambda}) - y(x(\vec{\lambda})))\cdot \vec{n}_{y})^{2}df$ 
+$E(\vec{\lambda}) = \int\limits_{x \in f}((x(\vec{\lambda}) - p(x(\vec{\lambda})))\cdot \vec{n}_{p})^{2}df$ 
 </p>
 
 <p>
-This energy is measuring the distance between a point $x \in f$ and the plane defined by $y \in \tilde{f}$ and $n_{y}$. It is a looser restriction since the points $x$ and $y$ 
+This energy is measuring the distance between a point $x \in f$ and the plane defined by $p \in \tilde{f}$ and $n_{p}$. It is a looser restriction since the points $x$ and $y$ 
 need only lie in the same plane for their contribution to the energy to be zero
 </p>
 
 <h2 id="minimizing_the_energy">Minimizing the energy</h2>
-
+<h3 id="ICP"> Iterative Closest Point </h3>
 <p>
-We will be using an energy minimization technique called <a href="https://en.wikipedia.org/wiki/Iterative_closest_point">Iterative Closest Point</a> whereby we use samples from the meshes involved to approximate $E(\vec{\lambda})$
+We will be using an energy minimization technique called <a href="https://en.wikipedia.org/wiki/Iterative_closest_point">Iterative Closest Point</a> (ICP) whereby we use samples from the meshes involved to approximate $E(\vec{\lambda})$
 These are two approches to doing this:
 </p>
 <ul>
@@ -214,10 +214,34 @@ These are two approches to doing this:
 </ul>
 
 <p>
-We will refer to this as "cloud to mesh" and "mesh to cloud" respectively. Once we have our pairs of points we can place them into matrices $\mat{X}$ and $\mat{P}$
+We will refer to this as "cloud to mesh" and "mesh to cloud" respectively. In practice it works best to alternate between both methods. In the code from the repo this switch happens if the energy seems to have plateaued between multiple ICP iterations
 </p>
 
+<p>Once we have our $k$ pairs $(\vec{x}_{i},\vec{p}_{i})_{i=1,...,k}$ our energies become:</p>
+<p>
+$E(\vec{\lambda}) \approx \frac{1}{k}\sum\limits_{i=1}^{k}||\vec{x}_{i}(\vec{\lambda}) - \vec{p}_{i}||^{2} \\
+E(\vec{\lambda}) \approx \frac{1}{k}\sum\limits_{i=1}^{k}((\vec{x}_{i}(\vec{\lambda}) - \vec{p}_{i}) \cdot \vec{n}_{i})^{2}$
+</p>
 
+<h3 id="gradient_decent"> Gradient decent </h3>
+<p>
+Even after making this approxiation we still are faced with a major issue. The relationship between $\vec{x}_{i}$ and $\vec{x}_{i}(\lambda)$ is a complicated one involving solving a least squares problem. As such finding a closed form minimizer 
+$\tilde{\vec{\lambda}}$ is difficult. Instead we will use <a href="https://en.wikipedia.org/wiki/Gradient_descent">gradient decent</a>. Gradient decent is an iterative algorithm that alternates between 2 steps:
+</p>
+
+<ul>
+<li>Compute $\beta = \nabla E(\vec{\lambda})|_{\lambda = \eta}$</li>
+<li>Update $\eta$ by $\eta \rightarrow \eta - \alpha||\beta||$</li>
+</ul>
+
+<p> 
+Where $\alpha > 0$ is a parameter that we set to control how far we step in the gradient direction. This works because the gradient always points in the direction of steepest change.
+The negative sign in the second step ensures that we will be stepping "downhill" towards a minimum instea of "uphill" towards a maximum. 
+All thats required to start the algorithm is an inital guess at the minimizer $\vec{\tilde{\lambda}} \approx \vec{\eta}_{0} \in \mathbb{H}^{|V| \times 1}$. For our purposes we use $\vec{\eta}_{0} = (\mathbb{I},\mathbb{I},...,\mathbb{I})$ where $\mathbb{I}$ is 
+the identity transformation quaternion $\mathbb{I}=(1,0,0,0)$; which represents no rotation or scale.
+</p>
+
+<h2 id="bringing_it_together">Bringing it all together</h2>
 
 
 
