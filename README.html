@@ -256,7 +256,76 @@ We are now in a place to dicuss our algorithm as a whole.
 8.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\vec{\lambda} \rightarrow \vec{\lambda} - \alpha||\nabla E(\vec{\lambda})||$ </br>
 </code>
 
+<h2 id="technical_details">Technical details</h2>
+<h3 id="tech_details_sampling">Sampling</h3>
+<h4> Mesh to cloud</h4>
+<p>
+The sampling proceedure for a triangle mesh is described in the readme for <a href="https://github.com/AdamSturge/geometry-processing-registration">registration</a> under the heading "Uniform random sampling of a triangle mesh". 
+</p>
+<blockquote>
+<h3 id="uniformrandomsamplingofasingletriangle">Uniform random sampling of a single triangle</h3>
 
+<p>In order to pick a point uniformly randomly in a triangle with corners <span class="math">\(\v_1,
+\v_2, \v_3 ∈ \R^3\)</span> we will <em>first</em> pick a point uniformly randomly in the
+<a href="https://en.wikipedia.org/wiki/Parallelogram">parallelogram</a> formed by
+reflecting <span class="math">\(\v_1\)</span> across the line <span class="math">\(\overline{\v_2\v_3}\)</span>:</p>
+
+<p><span class="math">\[
+\x = \v_1 + α (\v_2-\v_1) + β (\v_3 - \v_1)
+\]</span></p>
+
+<p>where <span class="math">\(α,β\)</span> are uniformly sampled from the unit interval <span class="math">\([0,1]\)</span>. If <span class="math">\(α+β > 1\)</span>
+then the point <span class="math">\(\x\)</span> above will lie in the reflected triangle rather than the
+original one. In this case, preprocess <span class="math">\(α\)</span> and <span class="math">\(β\)</span> by setting <span class="math">\(α←1-α\)</span> and
+<span class="math">\(β←1-β\)</span> to reflect the point <span class="math">\(\x\)</span> back into the original triangle.</p>
+
+<h3 id="area-weightedrandomsamplingoftriangles">Area-weighted random sampling of triangles</h3>
+
+<p>Assuming we know how to draw a <em>continuous</em> uniform random variable <span class="math">\(γ\)</span> from
+the unit interval <span class="math">\([0,1]\)</span>, we would now like to draw a <em>discrete</em> random
+triangle index <span class="math">\(T\)</span> from the sequence <span class="math">\({1,‥,m}\)</span> with likelihood proportional to
+the relative area of each triangle in the mesh.</p>
+
+<p>We can achieve this by first computing the <a href="https://en.wikipedia.org/wiki/Running_total">cumulative
+sum</a> <span class="math">\(\C ∈ \R^{m}\)</span> of the relative
+areas:</p>
+
+<p><span class="math">\[
+C_i = ∑_{j=1}^m \frac{A_j}{A_X},
+\]</span></p>
+
+<p>Then our random index is found by identifying the first entry in <span class="math">\(\C\)</span> whose
+value is greater than a uniform random variable <span class="math">\(γ\)</span>. Since <span class="math">\(\C\)</span> is sorted,
+locating this entry can be done in <span class="math">\(O(\log m)\)</span>
+<a href="https://en.wikipedia.org/wiki/Big_O_notation">time</a>.</p>
+</blockquote>
+<p>
+Once the sampling of the seed mesh is complete it is straightforward to loop over the target point cloud and find the closest point for each sample. 
+</p>
+
+<h4> Cloud to mesh</h4>
+<p>
+Given a list of $N$ points we want to sample $k$ points uniformly without replacement. This can be accomplished with the following algorithm:
+</p>
+<code>
+1. FOR i = 0,...,k </br>
+2.&nbsp;&nbsp;&nbsp;&nbsp; N = len(point_cloud)</br>
+3.&nbsp;&nbsp;&nbsp;&nbsp; j = round(rand(0,1)*(N-1)) % round up if decimal porition is greater than 0.5</br>
+4.&nbsp;&nbsp;&nbsp;&nbsp; samples[i] = point_cloud[j]</br>
+5.&nbsp;&nbsp;&nbsp;&nbsp; remove point_cloud[j] from point_cloud</br>
+</code>
+<p>
+Once the sampling of the target cloud is complete the closest points on the seed mesh can be found in the following manner: For each point loop over the triangle mesh faces to determine point to face distance. 
+Once the closest face is found project the point onto the plane defined by the triangle. Once on the plane find the closest point to the triangle by computing 
+the <a href="https://en.wikipedia.org/wiki/Barycentric_coordinate_system">Barycentric coordinates</a> of the projected point defined by the face vertices. 
+For more details see <a href="http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.104.4264&rep=rep1&type=pdf">3D Distance from a Point to a Triangle</a>
+</p>
+
+<h3 id="tech_details_solving_lease_sqaures">Solving the least squares problem</h3>
+
+<h3 id="tech_details_gradient_decent">Gradient decent</h3>
+
+<h3 id="tech_details_ICP">Iterative Closest Point</h3>
 
 
 
