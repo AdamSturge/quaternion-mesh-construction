@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.1.24)  4 APR 2017 14:16
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (MiKTeX 2.9.6210 64-bit) (preloaded format=pdflatex 2017.1.24)  9 APR 2017 17:57
 entering extended mode
 **./technical-abstract.tex
 (technical-abstract.tex
@@ -1049,11 +1049,11 @@ Package rerunfilecheck Info: File `technical-abstract.out' has not changed.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 160.
  ) 
 Here is how much of TeX's memory you used:
- 17252 strings out of 493333
- 259345 string characters out of 3139194
- 367142 words of memory out of 3000000
+ 17249 strings out of 493333
+ 259270 string characters out of 3139194
+ 368142 words of memory out of 3000000
  20122 multiletter control sequences out of 15000+200000
- 140235 words of font info for 253 fonts, out of 3000000 for 9000
+ 139962 words of font info for 251 fonts, out of 3000000 for 9000
  1302 hyphenation exceptions out of 8191
  60i,12n,94p,738b,430s stack positions out of 5000i,500n,10000p,200000b,50000s
 {C:/Program Files/MiKTeX 2.9/fonts/enc/dvips/inconsolata/i4-t1-4.enc}{C:/Prog
@@ -1076,7 +1076,7 @@ ublic/newtx/txexs.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/txfonts/t
 xsyb.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/newtx/txsys.pfb><C:/Pr
 ogram Files/MiKTeX 2.9/fonts/type1/public/newtx/zxlr.pfb><C:/Program Files/MiKT
 eX 2.9/fonts/type1/public/newtx/zxlri.pfb>
-Output written on technical-abstract.pdf (2 pages, 1645169 bytes).
+Output written on technical-abstract.pdf (2 pages, 1648079 bytes).
 PDF statistics:
  166 PDF objects out of 1000 (max. 8388607)
  25 named destinations out of 1000 (max. 500000)

@@ -113,12 +113,12 @@ In order to transform the seed mesh into the target mesh we need a method to det
 
 \begin{equation}
 \label{eqn:03}
-E(\lambda) = \int_{\Omega}||X(\lambda) - P||^{2}d\Omega \approx \sum_{i=0}^{k}||x_{i}(\lambda) - p_{i}||^{2}
+E(\lambda) = \int_{\Omega}||X(\lambda) - P||^{2}d\Omega \approx \frac{1}{k}\sum_{i=0}^{k}||x_{i}(\lambda) - p_{i}||^{2}
 \end{equation}
 
 \begin{equation}
 \label{eqn:04}
-E(\lambda) = \sum_{i=0}^{k}((x_{i}(\lambda) - p_{i}) \cdot n_{i})^{2}
+E(\lambda) = \int_{\Omega}((X(\lambda) - P) \cdot n)^{2}d\Omega \approx \frac{1}{k}\sum_{i=0}^{k}((x_{i}(\lambda) - p_{i}) \cdot n_{i})^{2}
 \end{equation}
 Here minimization proceeds in an Iterative Closest Point \cite{Bouaziz:2015} fashion, whereby first we sample $k$ points from the seed mesh and find their closest point in the 3D scan, or vice-versa. The selected energy is then minimized for these points before new points are selected.
 
@@ -129,7 +129,7 @@ By pulling all the quaternions $\lambda_{i}$ into a vector $\vec{\lambda}$ the e
 
 \begin{equation}
 \label{eqn:05}
-\vec{\lambda} \rightarrow \vec{\lambda} + \alpha\frac{\nabla E(\vec{\lambda})}{||\nabla E(\vec{\lambda})||}
+\vec{\lambda} \rightarrow \vec{\lambda} - \alpha\frac{\nabla E(\vec{\lambda})}{||\nabla E(\vec{\lambda})||}
 \end{equation}
 where $\alpha$ is a hyperparameter that controls how far we step in the gradient direction.
 
@@ -141,7 +141,7 @@ where $\alpha$ is a hyperparameter that controls how far we step in the gradient
 \caption{Left : quaternion deformation. Right : Poisson reconstruction assignment}
 \label{fig:poisson_comparision}
 \end{figure}
-One of the benefits and curses of iterative methods is that they can be run continually to produce higher and higher quality meshes. Our technique is doubley iterative as it utilizes both ICP and gradient decent, so this is especially true here. This iterative nature has a large cost in the runtime of our algorithm, taking on the order of 10 minutes to transform a sphere into something resembling a human head. 
+One of the benefits and curses of iterative methods is that they can be run continually to produce higher and higher quality meshes. Our technique is doubley iterative as it utilizes both ICP and gradient decent, so this is especially true here. This iterative nature has a large cost in the runtime of our algorithm, taking on the order of 5 minutes to transform a sphere into something resembling a human head. 
 
 Figure \ref{fig:poisson_comparision} shows a comparison of our technique to a naive version of  poisson surface reconstruction \cite{Hoppe:2006} implemented on a fixed spatial grid. The most noticeable difference between the two is the left image has inherited the smoothness of it's seed mesh, whereas the poission mesh has noticeable isolines. However it should also be noted that the possion mesh took seconds to create whereas our method was run overnight.
 
