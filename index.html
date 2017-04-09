@@ -69,6 +69,12 @@
 This project attempts to construct a mesh given a point cloud. To do so we begin with a seed mesh and deform it in such as way that it becomes the mesh implied by the point cloud. 
 </p>
 
+<img src="./images/front_sphere_to_head_overnight.PNG" style="width:200px; padding-left: 130px; padding-right: 50px"/>
+<img src="./images/side_sphere_to_head_overnight.PNG"  style="width:200px; padding-right: 50px"/>
+<img src="./images/back_sphere_to_head_overnight.PNG"  style="width:200px" />
+
+<p style="padding-left:250px"> A sphere deformed to match a point cloud sampling of a human head </p>
+
 <h2 id="spin_transformations">Spin Transformations</h2>
 <p>
 To do so we must first go over some of the results from the paper <a href="https://www.cs.cmu.edu/~kmcrane/Projects/SpinTransformations/paper.pdf">Spin Transformations of Discrete Surfaces</a> by Keenan et al
@@ -276,6 +282,11 @@ We are now in a place to dicuss our algorithm as a whole.
 7.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Compute $E(\vec{\lambda})$ and $\nabla E(\vec{\lambda})$ </br>
 8.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$\vec{\lambda} \rightarrow \vec{\lambda} - \alpha||\nabla E(\vec{\lambda})||$ </br>
 </code>
+
+<br />
+<br />
+<img src="./images/trimmed.gif" />
+<p style="padding-left:330px">Sped up animation of a deforming a sphere into a human head</p>
 
 <h2 id="technical_details">Technical details</h2>
 <h3 id="tech_details_sampling">Sampling</h3>
