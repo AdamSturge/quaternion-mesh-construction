@@ -13,39 +13,10 @@
 <div style="display:none">
 <span class="math">\[\newcommand{\mat}[1]{\mathbf{#1}}\]</span>
 <span class="math">\[\newcommand{\vec}[1]{\mathbf{#1}}\]</span>
-<span class="math">\[\newcommand{\A}{\mat{A}}\]</span>
-<span class="math">\[\newcommand{\B}{\mat{B}}\]</span>
-<span class="math">\[\newcommand{\C}{\mat{C}}\]</span>
-<span class="math">\[\newcommand{\D}{\mat{D}}\]</span>
-<span class="math">\[\newcommand{\I}{\mat{I}}\]</span>
-<span class="math">\[\newcommand{\G}{\mat{G}}\]</span>
-<span class="math">\[\newcommand{\N}{\mat{N}}\]</span>
-<span class="math">\[\newcommand{\P}{\mat{P}}\]</span>
-<span class="math">\[\newcommand{\Rot}{\mat{R}}\]</span>
-<span class="math">\[\newcommand{\R}{\mathbb{R}}\]</span>
-<span class="math">\[\newcommand{\One}{\mathbf{1}}\]</span>
-<span class="math">\[\newcommand{\S}{\mathcal{S}}\]</span>
-<span class="math">\[\newcommand{\M}{\mat{M}}\]</span>
-<span class="math">\[\newcommand{\U}{\mat{U}}\]</span>
-<span class="math">\[\newcommand{\V}{\mat{V}}\]</span>
-<span class="math">\[\newcommand{\W}{\mat{W}}\]</span>
-<span class="math">\[\newcommand{\X}{\mat{X}}\]</span>
-<span class="math">\[\newcommand{\Y}{\mat{Y}}\]</span>
-<span class="math">\[\newcommand{\c}{\vec{c}}\]</span>
-<span class="math">\[\newcommand{\f}{\vec{f}}\]</span>
-<span class="math">\[\newcommand{\g}{\vec{g}}\]</span>
-<span class="math">\[\newcommand{\n}{\vec{n}}\]</span>
-<span class="math">\[\newcommand{\p}{\vec{p}}\]</span>
-<span class="math">\[\newcommand{\tr}[1]{\mathop{\text{tr}}{\left(#1\right)}}\]</span>
-<span class="math">\[\newcommand{\t}{\vec{t}}\]</span>
 <span class="math">\[\newcommand{\x}{\vec{x}}\]</span>
-<span class="math">\[\newcommand{\y}{\vec{y}}\]</span>
-<span class="math">\[\newcommand{\u}{\vec{u}}\]</span>
-<span class="math">\[\newcommand{\z}{\vec{z}}\]</span>
+<span class="math">\[\newcommand{\R}{\mathbb{R}}\]</span>
 <span class="math">\[\renewcommand{\v}{\vec{v}}\]</span>
-<span class="math">\[\newcommand{\transpose}{{\mathsf T}}\]</span>
-<span class="math">\[\newcommand{\argmin}{\mathop{\text{argmin}}}\]</span>
-<span class="math">\[\newcommand{\argmax}{\mathop{\text{argmax}}}\]</span>
+<span class="math">\[\newcommand{\C}{\mat{C}}\]</span>
 </div>
 
 <h1 id="geometry_processing_project">Conformal Quaternion Based Mesh (Re)Construction  </h1>
@@ -134,8 +105,8 @@ This system can be solved in a <a href="https://en.wikipedia.org/wiki/Least_squa
 <blockquote>
 <h5 id="quaternion_vectors">Hold the phone. Quaternion vectors?</h5>
 <p>
-So you might be wondering how exactly $\tilde{e}$ and $\tilde{f}$ represent edges and vertices. After all each one is just a vector of quaternions. Keenan et all use the following embedding of $\mathbb{R}^{3}$ into $\mathbb{H}$. 
-Each vector $\vec{p}=(x,y,z)$ in $\mathbb{R}^{3}$ is mapped to a purely imaginary quaternion $(0,x,y,z)$ So the vector $\vec{\tilde{e}} \in \mathbb{H}^{|E| \times 1}$ is represented 
+So you might be wondering how exactly $\tilde{e}$ and $\tilde{f}$ represent edges and vertices. After all each one is just a vector of quaternions. Keenan et al use the following embedding of $\mathbb{R}^{3}$ into $\mathbb{H}$. 
+Each vector $\vec{p}=(x,y,z)$ in $\mathbb{R}^{3}$ is mapped to a purely imaginary quaternion $(0,x,y,z)$ So the vector $\vec{\tilde{e}} \in \mathbb{H}^{|E| \times 1}$ is represented in $\mathbb{R}$
 as an expanded vector $\vec{\tilde{e}}_{\mathbb{R}} \in \mathbb{R}^{4|E| \times 1}$. Similarly for $\vec{\tilde{f}}$.
 </p>
 <h5 id="quaternion_matrix">That's great, but what about $\mat{L}$ and $\mat{D}$?</h5>
@@ -158,7 +129,7 @@ As such each entry gets blown up to a diagonal $4 \times 4$ block in the real ve
 </blockquote>
 
 <p>
-So if we know the transformed vertices $\vec{\tilde{e}}$ we can solve for the transformed vertex positions $\vec{\tilde{f}}$. So what's the relationship between $\vec{e}$ and $\vec{\tilde{e}}$? 
+So if we know the transformed edges $\vec{\tilde{e}}$ we can solve for the transformed vertex positions $\vec{\tilde{f}}$. So what's the relationship between $\vec{e}$ and $\vec{\tilde{e}}$? 
 The details are in the paper so I'll just state the final result
 </p>
 
@@ -247,7 +218,7 @@ This is obviously an unrealistic assumption but it serves as a good base line an
 <p>
 The second energy can be seen as instead assuming that in the neighbourhood of each point $\vec{p}_{i}$ the target mesh $\tilde{f}$ is approximately a plane. 
 This is much more realistic assumption and tends to work better as long as your points don't "slide" too much as they are moved close to eachother. Meaning you do want $\vec{x}_{i}$ and $\vec{p}_{i}$ to end up 
-close to each other, not just in the same infinite plane.
+close to each other, not just on the same infinite plane.
 </p>
 
 <h3 id="gradient_decent"> Gradient decent </h3>
@@ -286,7 +257,7 @@ We are now in a place to dicuss our algorithm as a whole.
 <br />
 <br />
 <img src="./images/trimmed.gif" />
-<p style="padding-left:330px">Sped up animation of a deforming a sphere into a human head</p>
+<p style="padding-left:150px">Sped up animation of a deforming a sphere into a human head. The pauses occur when the algorithm is resampling</p>
 
 <h2 id="technical_details">Technical details</h2>
 <h3 id="tech_details_sampling">Sampling</h3>
